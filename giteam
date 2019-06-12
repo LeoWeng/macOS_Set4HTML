@@ -1,0 +1,180 @@
+#!/bin/bash
+
+VER="version 1.0.0"
+GITSRC=
+
+if [ -e /usr/bin/git ]; then
+        GITSRC="/usr/bin/git"
+elif [ -e /usr/local/git/bin/git ]; then 
+        GITSRC="/usr/local/git/bin/git"
+elif [ -e /usr/local/bin/git ]; then
+	GITSRC="/usr/local/bin/git"
+fi
+
+cmdlist()
+{
+	cat << EOF
+==============================================================================
+Support command:
+	-v			Git/giteam version.
+	TeamClone		從github專案為基礎，建立副本於本地端。
+	TeamCommit		從本地端git專案上傳專案內容到github。
+	TeamBranch		在本地端git專案為你的新任務添加新的分支。
+	TeamBranchSync2Github	於本地端git專案，指定你的本地分支同步到github。
+	TeamMerge		你的新任務已經完成，你透過這個指令可以同步你的
+				內容到github上。
+	exitDoc			離開說明文件。
+
+EOF
+}
+
+myVersion()
+{
+	echo "giteam $VER"
+	${GITSRC} --version
+	echo ""
+}
+
+myCheckoutFromWeb()
+{
+	cat << EOF
+==============================================================================
+說明：
+	workspace - 你的專案資料夾
+
+	URL - 你的github專案資料夾（ E.q URL= https://github.com/LeoWeng/RWD2019.git ）
+	開啟 Terminal 軟體輸入以下內容(你下載的專案名稱就是<workspace>)：
+---------------------------------------------------
+git clone <URL> 
+cd <workspace>
+---------------------------------------------------
+	以 https://github.com/LeoWeng/RWD2019.git 為例
+
+		git clone https://github.com/LeoWeng/RWD2019.git
+		cd RWD2019
+
+	RWD2019 即為 workspace 
+
+EOF
+}
+
+myCommitToWeb()
+{
+	cat << EOF
+==============================================================================
+說明：
+	workspace - 你的專案資料夾
+
+	此步驟操作前請先Commit目前專案(合併訊息將顯示：這次合併內容為XXX)，
+	開啟 Terminal 軟體輸入以下內容：
+---------------------------------------------------
+cd <workspace>
+git commit -m "這次合併內容為XXX"
+---------------------------------------------------
+
+	開啟 Terminal 軟體輸入以下內容：
+---------------------------------------------------
+cd <workspace>
+git pull origin
+git push origin
+---------------------------------------------------
+	現在你的github專案已經被目前本地端內容合併了。
+
+EOF
+}
+
+myNewBranch()
+{
+	cat << EOF
+==============================================================================
+說明：
+	workspace - 你的專案資料夾
+
+	如果你被分配了新的任務請做以下動作新增一個分支，
+	建立分支後，在此分頁進行開始執行專案開發（完成之後再合併到主分支。）
+
+	開啟 Terminal 軟體輸入以下內容將會從主分支分出一個相同內容的"sub-item"分支：
+---------------------------------------------------
+cd <workspace>
+git branch <sub-item> master
+git checkout <sub-item>
+---------------------------------------------------
+	<sub-item> 為新的分支名稱
+	從現在開始你作的任何 commit 將直接彙整入 <sub-item>
+
+EOF
+}
+
+myPushBranch2Origin()
+{
+	cat << EOF
+==============================================================================
+說明：
+	workspace - 你的專案資料夾
+
+	以下操作將會推送你的<sub-item>分支到github:
+---------------------------------------------------
+cd <workspace>
+git push origin <sub-item>
+---------------------------------------------------
+
+EOF	
+}
+
+myPushMasterMerge()
+{
+	cat << EOF
+==============================================================================
+說明：
+	workspace - 你的專案資料夾
+
+	以下操作將會執行以下動作：
+	1. 本地端與遠端同步，並將分支<sub-item> push 到github
+	2. 將分支<sub-item> 內容與主分支合併
+	3. 加入一個標籤 v1.0.0  在主分支上
+	4. 推送主分支與標籤到github
+
+---------------------------------------------------
+cd <workspace>
+git pull
+git push origin <sub-item>
+git checkout master
+git merge --no-ff <sub-item>
+git tag v1.0.0
+git push master
+git push --tags
+---------------------------------------------------
+
+EOF
+	
+}
+
+myExit()
+{
+	exit 0
+}
+
+cmdlist
+while true; do
+	if read -p "input your command: " -r CMD ; then
+		case ${CMD} in
+			-v)
+				myVersion ;;
+			TeamClone)
+				myCheckoutFromWeb ;;
+			TeamCommit)
+				myCommitToWeb ;;
+			TeamBranch)
+				myNewBranch ;;
+			TeamBranchSync2Github)
+				myPushBranch2Origin ;;
+			TeamMerge)
+				myPushMasterMerge ;;
+			exitDoc)
+				myExit;;
+			*)
+				cmdlist;;
+		esac	
+	fi
+done
+
